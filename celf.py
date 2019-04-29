@@ -63,8 +63,8 @@ def celf(graph, k, prob, n_iters=1000):
     # we negate the spread to get the node
     # with the maximum spread when popping from the heap
     gains = []
-    for node in g.nodes():
-        spread = compute_independent_cascade(graph, [node], prob, n_iters)
+    for node in graph.nodes():
+        spread = IC(graph, [node], prob, n_iters)
         heapq.heappush(gains, (-spread, node))
 
     # we pop the heap to get the node with the best spread,
@@ -75,7 +75,7 @@ def celf(graph, k, prob, n_iters=1000):
     spreads = [spread]
 
     # record the number of times the spread is computed
-    lookups = [graph.vcount()]
+    lookups = [graph.number_of_nodes()]
     elapsed = [round(time.time() - start_time, 3)]
 
     for _ in range(k - 1):
@@ -89,7 +89,7 @@ def celf(graph, k, prob, n_iters=1000):
             # to the solution, instead of just the gain, i.e. we need to subtract
             # the spread without adding the current node
             _, current_node = heapq.heappop(gains)
-            spread_gain = compute_independent_cascade(
+            spread_gain = IC(
                 graph, solution + [current_node], prob, n_iters) - spread
 
             # check if the previous top node stayed on the top after pushing

@@ -34,7 +34,8 @@ celf_output =[]
 #for p in [0.0072,0.03,0.05, 0.1, 0.5, 1]:
 for p in [0.0072, 0.03]:
 	for s in [1,5]:
-		celf_output.append([p, s] + list(celf(g,s,p,mc=2)))
+		res=celf(g,s,p,2)
+		celf_output.append([p, s,  len(res[0]), sum(res[1]), " ".join(res[0]), sum(res[2])])
 		print(celf_output)
 
 df=pd.DataFrame(celf_output)
