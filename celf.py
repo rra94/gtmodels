@@ -47,60 +47,64 @@ def IC(g,S,p=0.5,mc=1000):
         
     return(np.mean(spread))
 
-def celf(g,k,p=0.1,mc=1000):  
+
+import heapq
+
+
+def celf(graph, k, prob, n_iters=1000):
     """
-    Input:  graph object, number of seed nodes
-    Output: optimal seed set, resulting spread, time for each iteration
+    Find k nodes with the largest spread (determined by IC) from a igraph graph
+    using the Cost Effective Lazy Forward Algorithm, a.k.a Lazy Greedy Algorithm.
     """
-      
-    # --------------------
-    # Find the first node with greedy algorithm
-    # --------------------
-    
-    # Calculate the first iteration sorted list
-    start_time = time.time() 
-    marg_gain = {node : IC(g,[node],p,mc) for node in g.nodes()}
+    start_time = time.time()
 
-    # Create the sorted list of nodes and their marginal gain 
-    Q = sorted(marg_gain,key=marg_gain.get, reverse=True):,reverse=True)
+    # find the first node with greedy algorithm:
+    # python's heap is a min-heap, thus
+    # we negate the spread to get the node
+    # with the maximum spread when popping from the heap
+    gains = []
+    for node in g.nodes():
+        spread = compute_independent_cascade(graph, [node], prob, n_iters)
+        heapq.heappush(gains, (-spread, node))
 
-    # Select the first node and remove from candidate list
-    S, spread, SPREAD = [Q[0][0]], Q[0][1], [Q[0][1]]
-    Q, LOOKUPS, timelapse = Q[1:], [g.number_of_nodes()], [time.time()-start_time]
-    
-    # --------------------
-    # Find the next k-1 nodes using the list-sorting procedure
-    # --------------------
-    
-    for _ in range(k-1):    
+    # we pop the heap to get the node with the best spread,
+    # when storing the spread to negate it again to store the actual spread
+    spread, node = heapq.heappop(gains)
+    solution = [node]
+    spread = -spread
+    spreads = [spread]
 
-        check, node_lookup = False, 0
-        
-        while not check:
-            
-            # Count the number of times the spread is computed
+    # record the number of times the spread is computed
+    lookups = [graph.vcount()]
+    elapsed = [round(time.time() - start_time, 3)]
+
+    for _ in range(k - 1):
+        node_lookup = 0
+        matched = False
+
+        while not matched:
             node_lookup += 1
-            
-            # Recalculate spread of top node
-            current = Q[0][0]
-            
-            # Evaluate the spread function and store the marginal gain in the list
-            Q[0] = (current,IC(g,S+[current],p,mc) - spread)
 
-            # Re-sort the list
-            Q = sorted(Q, key = lambda x: x[1], reverse = True)
+            # here we need to compute the marginal gain of adding the current node
+            # to the solution, instead of just the gain, i.e. we need to subtract
+            # the spread without adding the current node
+            _, current_node = heapq.heappop(gains)
+            spread_gain = compute_independent_cascade(
+                graph, solution + [current_node], prob, n_iters) - spread
 
-            # Check if previous top node stayed on top after the sort
-            check = (Q[0][0] == current)
+            # check if the previous top node stayed on the top after pushing
+            # the marginal gain to the heap
+            heapq.heappush(gains, (-spread_gain, current_node))
+            matched = gains[0][1] == current_node
 
-        # Select the next node
-        spread += Q[0][1]
-        S.append(Q[0][0])
-        SPREAD.append(spread)
-        LOOKUPS.append(node_lookup)
-        timelapse.append(time.time() - start_time)
+        # spread stores the cumulative spread
+        spread_gain, node = heapq.heappop(gains)
+        spread -= spread_gain
+        solution.append(node)
+        spreads.append(spread)
+        lookups.append(node_lookup)
 
-        # Remove the selected node from the list
-        Q = Q[1:]
+        elapse = round(time.time() - start_time, 3)
+        elapsed.append(elapse)
 
-    return(S,SPREAD,timelapse,LOOKUPS)
+    return [solution, spreads, elapsed, lookups]
