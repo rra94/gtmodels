@@ -31,10 +31,10 @@ g = nx.DiGraph()
 
 g.add_edges_from(gg)
 celf_output =[]
-#for p in [0.0072,0.03,0.05, 0.1, 0.5, 1]:
-for p in [0.0072, 0.03]:
-	for s in [1,5]:
-		res=celf(g,s,p,2)
+for p in [0.0074,0.03,0.05, 0.1, 0.5, 1]:
+#for p in [0.0072, 0.03]:
+	for s in [1,5, 10, 15]:
+		res=celf(g,s,p,1000)
 		celf_output.append([p, s,  len(res[0]), sum(res[1]), " ".join(res[0]), sum(res[2])])
 		print(celf_output)
 
