@@ -20,7 +20,7 @@ n=8297
 gg=[]
 
 
-with open("/home/rragarwa/Documents/nucleus/nd/wikivote_ps.txt", 'r') as f:
+with open("/home/rragarwal//nu/nd/wikivote_ps.txt", 'r') as f:
 	next(f)
 	for line in f:
 		k=line.split()
@@ -40,4 +40,4 @@ for p in [0.0072, 0.03]:
 
 df=pd.DataFrame(celf_output)
 
-df.to_csv("/home/rragarwa/gt_models/wikivote_clef_1000.csv")
+df.to_csv("/home/rragarwal/gtmodels/wikivote_clef_1000.csv")
