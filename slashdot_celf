@@ -20,7 +20,7 @@ n=8297
 gg=[]
 
 
-with open("/home/rragarwal//nu/nd/slashdot_ps.txt", 'r') as f:
+with open("/home/rragarwal/res/slashdot_ps.txt", 'r') as f:
 	next(f)
 	for line in f:
 		k=line.split()
@@ -34,10 +34,10 @@ celf_output =[]
 for p in [0.0072,0.03,0.05, 0.1, 0.5, 1]:
 #for p in [0.0072, 0.03]:
 	for s in [1,5, 10 , 20, 25]:
-		res=celf(g,s,p,1000)
+		res=celf(g,s,p,100)
 		celf_output.append([p, s,  len(res[0]), sum(res[1]), " ".join(res[0]), sum(res[2])])
 		print(celf_output)
 
 df=pd.DataFrame(celf_output)
 
-df.to_csv("/home/rragarwal/gtmodels/slashdot_clef_1000.csv")
+df.to_csv("/home/rragarwal/gtmodels/slashdot_clef_100.csv")
